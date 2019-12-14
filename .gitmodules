@@ -1,1 +1,4 @@
 
+[submodule "src/riscv-pk"]
+	path = src/riscv-pk
+	url = https://github.com/l-nic/riscv-pk.git
