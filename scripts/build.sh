@@ -68,23 +68,23 @@ test -x build/dropbear-${DROPBEAR_VERSION}/dropbear || (
     ./configure --host=${CROSS_COMPILE%-} --disable-zlib
     make -j$(nproc)
 )
-test -x build/linux-${LINUX_KERNEL_VERSION}/vmlinux || (
-    cd build/linux-${LINUX_KERNEL_VERSION}
-    make ARCH=riscv CROSS_COMPILE=${CROSS_COMPILE} olddefconfig
-    make -j$(nproc) ARCH=riscv CROSS_COMPILE=${CROSS_COMPILE} vmlinux
-)
+# test -x build/linux-${LINUX_KERNEL_VERSION}/vmlinux || (
+#     cd build/linux-${LINUX_KERNEL_VERSION}
+#     make ARCH=riscv CROSS_COMPILE=${CROSS_COMPILE} olddefconfig
+#     make -j$(nproc) ARCH=riscv CROSS_COMPILE=${CROSS_COMPILE} vmlinux
+# )
 
-#
-# build bbl
-#
-test -d build/riscv-pk || mkdir build/riscv-pk
-test -x build/riscv-pk/bbl || (
-    cd build/riscv-pk
-    ../../src/riscv-pk/configure \
-        --host=${CROSS_COMPILE%-} \
-        --with-payload=../linux-${LINUX_KERNEL_VERSION}/vmlinux
-    make -j$(nproc)
-)
+# #
+# # build bbl
+# #
+# test -d build/riscv-pk || mkdir build/riscv-pk
+# test -x build/riscv-pk/bbl || (
+#     cd build/riscv-pk
+#     ../../src/riscv-pk/configure \
+#         --host=${CROSS_COMPILE%-} \
+#         --with-payload=../linux-${LINUX_KERNEL_VERSION}/vmlinux
+#     make -j$(nproc)
+# )
 
 #
 # create filesystem image

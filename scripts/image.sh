@@ -63,18 +63,22 @@ copy_libs() {
     # copy busybox and dropbear
     cp build/busybox-${BUSYBOX_VERSION}/busybox mnt/bin/
     cp build/dropbear-${DROPBEAR_VERSION}/dropbear mnt/sbin/
+    cp ../tests/hello mnt/root/
+    cp ../tests/riscv_trivial_loopback mnt/root/
+    cp ../tests/qemu_loopback_tester mnt/root/
+    # cp ../tests/hello mnt/usr/bin/
 
     # copy libraries
-    if [ -d ${GCC_DIR}/sysroot/usr/lib${ARCH/riscv/}/${ABI}/ ]; then
+    if [ -d /usr/riscv64-linux-gnu/lib${ARCH/riscv/}/${ABI}/ ]; then
         ABI_DIR=lib${ARCH/riscv/}/${ABI}
     else
         ABI_DIR=lib
     fi
     LDSO_NAME=ld-linux-${ARCH}-${ABI}.so.1
-    LDSO_TARGET=$(readlink ${GCC_DIR}/sysroot/lib/${LDSO_NAME})
+    LDSO_TARGET=$(readlink /usr/riscv64-linux-gnu/lib/${LDSO_NAME})
     mkdir -p mnt/${ABI_DIR}/
-    copy_libs $(dirname ${GCC_DIR}/sysroot/lib/${LDSO_TARGET})/ mnt/${ABI_DIR}/
-    copy_libs ${GCC_DIR}/sysroot/usr/${ABI_DIR}/ mnt/${ABI_DIR}/
+    copy_libs $(dirname /usr/riscv64-linux-gnu/lib/${LDSO_TARGET})/ mnt/${ABI_DIR}/
+    copy_libs /usr/riscv64-linux-gnu/lib mnt/${ABI_DIR}/
     if [ ! -e mnt/lib/${LDSO_NAME} ]; then
         ln -s /${ABI_DIR}/$(basename ${LDSO_TARGET}) mnt/lib/${LDSO_NAME}
     fi
