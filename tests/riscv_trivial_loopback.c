@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+#define ARGUMENT_ERROR -1
+
+// register volatile uint64_t global_ptr1 asm ("t5");
+// register volatile uint64_t global_ptr2 asm ("t6");
+
+
+void lnic_set_own_id(uint64_t own_id) {
+	asm("csrrw zero, 0x50, a0");
+}
+
+uint64_t lnic_get_own_id() {
+	register uint64_t to_return asm("a0");
+	asm("csrrw a0, 0x50, zero");
+	return to_return;
+}
+
+uint64_t lnic_read_word() {
+	register uint64_t to_return asm("a0");
+	asm("csrrw a0, 0x51, zero");
+	return to_return;
+}
+
+uint64_t lnic_messages_ready() {
+	register uint64_t to_return asm("a0");
+	asm("csrrw a0, 0x52, zero");
+	return to_return;
+}
+
+uint64_t lnic_is_last_word() {
+	register uint64_t to_return asm("a0");
+	asm("csrrw a0, 0x53, zero");
+	return to_return;
+}
+
+uint64_t lnic_src_ip_lower() {
+	register uint64_t to_return asm("a0");
+	asm("csrrw a0, 0x54, zero");
+	return to_return;
+}
+
+uint64_t lnic_src_ip_upper() {
+	register uint64_t to_return asm("a0");
+	asm("csrrw a0, 0x55, zero");
+	return to_return;
+}
+
+uint64_t lnic_src_port() {
+	register uint64_t to_return asm("a0");
+	asm("csrrw a0, 0x56, zero");
+	return to_return;
+}
+
+void lnic_write_word() {
+	asm("csrrw zero, 0x57, a0");
+}
+
+void lnic_write_message_end() {
+	asm("csrrw zero, 0x58, a0");
+}
+
+void lnic_set_dst_ip_lower(uint64_t ip_lower_bits) {
+	asm("csrrw zero, 0x59, a0");
+}
+
+void lnic_set_dst_ip_upper(uint64_t ip_upper_bits) {
+	asm("csrrw zero, 0x5a, a0");
+}
+
+void lnic_set_dst_port(uint64_t dst_port) {
+	asm("csrrw zero, 0x5b, a0");
+}
+
+int main(int argc, char ** argv) {
+	if (argc != 1) {
+		return ARGUMENT_ERROR;
+	}
+	printf("Starting trivial loopback\n");
+	// lnic_set_enable(true);
+	lnic_set_own_id(1);
+	while (lnic_messages_ready() == 0);
+	uint64_t input_data = lnic_read_word();
+	lnic_set_dst_ip_lower(lnic_src_ip_lower());
+	lnic_set_dst_port(lnic_src_port());
+	lnic_write_word(input_data + 1);
+	lnic_write_message_end();
+	while (true) {
+		while (lnic_messages_ready() == 0);
+		uint64_t word = lnic_read_word();
+		lnic_write_word(word + 1);
+		lnic_write_message_end();
+	}
+	// lnic_set_enable(false);
+	return 0;
+}
